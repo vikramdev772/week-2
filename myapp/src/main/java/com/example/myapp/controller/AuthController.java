@@ -54,9 +54,7 @@ public class AuthController {
 
     @GetMapping("/data")
     List<User> getData() {
-
         return db.findAll();
-
     }
     @PutMapping("/update/{id}")
     public String updateUser(@PathVariable Long id,@RequestBody SignupRequest sd){

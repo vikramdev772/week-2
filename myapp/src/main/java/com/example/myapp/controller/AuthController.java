@@ -3,7 +3,9 @@ package com.example.myapp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,5 +54,15 @@ public class AuthController {
         return db.findAll();
 
     }
-
-}
+    @PutMapping("/update/{id}")
+    public String updateUser(@PathVariable Long id,@RequestBody SignupRequest sd){
+        Optional<User> op=db.findById(id);
+        if(op.isEmpty()){
+            return "user not found";
+        }
+        User updatedUser=op.get();
+        updatedUser.setName(sd.getName());
+        updatedUser.setEmail(sd.getEmail());
+        db.save(updatedUser);
+        return "user updated successfully";
+    }

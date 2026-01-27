@@ -9,7 +9,7 @@ async function logData() {
   };
 
   localStorage.setItem("data", JSON.stringify(obj));
-  let res = await fetch("http://127.0.0.1:8080/api/signup", {
+  let res = await fetch("https://ffaea22c7cee.ngrok-free.app/api/signup", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,6 +71,14 @@ public class AuthController {
         db.save(updatedUser);
         return "user updated successfully";
     }
-    
+    @DeleteMapping("/user/{id}")
+    public String deleteUser(@PathVariable Long id){
+        Optional<User> op=db.findById(id);
+        if(op.isEmpty()){
+            return "user not found";
+        }
+        db.deleteById(id);
+        return "user deleted successfully";
+    }
 
 }

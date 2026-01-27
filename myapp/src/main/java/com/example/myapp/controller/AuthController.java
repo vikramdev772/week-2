@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import com.example.myapp.dto.LoginRequest;
 import com.example.myapp.dto.SignupRequest;
@@ -57,19 +58,29 @@ public class AuthController {
         return db.findAll();
 
     }
+
     @PutMapping("/update/{id}")
-    public String updateUser(@PathVariable Long id,@RequestBody SignupRequest sd){
-        Optional<User> op=db.findById(id);
-        if(op.isEmpty()){
+    public String updateUser(@PathVariable Long id, @RequestBody SignupRequest sd) {
+        Optional<User> op = db.findById(id);
+        if (op.isEmpty()) {
             return "user not found";
         }
-        User updatedUser=op.get();
+        User updatedUser = op.get();
         updatedUser.setName(sd.getName());
         updatedUser.setEmail(sd.getEmail());
         updatedUser.setPassword(sd.getPassword());
         db.save(updatedUser);
         return "user updated successfully";
     }
-    
+
+    @DeleteMapping("/user/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        Optional<User> optionalUser = db.findById(id);
+        if (optionalUser.isEmpty()) {
+            return "User not found";
+        }
+        db.deleteById(id);
+        return "User deleted successfully";
+    }
 
 }

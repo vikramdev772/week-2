@@ -9,15 +9,29 @@ async function logData() {
   };
 
   localStorage.setItem("data", JSON.stringify(obj));
-  let res = await fetch("http://127.0.0.1:8080/api/signup", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(obj),
-  });
-  let data=await res.text();
-  console.log("\n\t response from the api : "+data);
+
+  try {
+    let res = await fetch("https://ffaea22c7cee.ngrok-free.app/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(obj),
+    });
+
+    if (!res.ok) {
+      let errorText = await res.text();
+      throw new Error(`Server error: ${res.status} ${res.statusText} - ${errorText}`);
+    }
+
+    let data = await res.text();
+    console.log("\n\t response from the api : " + data);
+    alert("Signup successful: " + data);
+
+  } catch (error) {
+    console.error("Signup failed:", error);
+    alert("Signup failed: " + error.message);
+  }
 }
 function clearLs() {
   localStorage.clear();

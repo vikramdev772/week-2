@@ -12,6 +12,9 @@ import com.example.myapp.dto.LoginRequest;
 import com.example.myapp.dto.SignupRequest;
 import com.example.myapp.model.User;
 import com.example.myapp.repo.UserRepository;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -51,6 +54,18 @@ public class AuthController {
 
         return db.findAll();
 
+    }
+     @PutMapping("/update/{id}")
+    public String updateUser(@PathVariable Long id,@RequestBody SignupRequest sd){
+        Optional<User> op=db.findById(id);
+        if(op.isEmpty()){
+            return "user not found";
+        }
+        User updatedUser=op.get();
+        updatedUser.setName(sd.getName());
+        updatedUser.setEmail(sd.getEmail());
+        db.save(updatedUser);
+        return "user updated successfully";
     }
 
 }

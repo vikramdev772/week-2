@@ -48,9 +48,7 @@ public class AuthController {
 
     @GetMapping("/data")
     List<User> getData() {
-
         return db.findAll();
-
     }
 
 }

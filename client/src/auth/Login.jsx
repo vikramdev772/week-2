@@ -30,7 +30,8 @@ function Login() {
       }
 
       alert(data);
-
+      
+      localStorage.setItem("token ",data);
 
       navigate("/admin");
 

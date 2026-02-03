@@ -3,7 +3,12 @@ package com.example.myapp.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javax.swing.text.html.Option;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +23,7 @@ import com.example.myapp.dto.LoginRequest;
 import com.example.myapp.dto.SignupRequest;
 import com.example.myapp.model.User;
 import com.example.myapp.repo.UserRepository;
+import com.example.myapp.security.JwtService;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -39,17 +45,20 @@ public class AuthController {
         return "signup sucess -> data" + sd.toString();
     }
 
+    @Autowired JwtService jwt;
+
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest data) {
+    public ResponseEntity<String> login(@RequestBody LoginRequest data) {
 
-        User user = db.findByEmail(data.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!user.getPassword().equals(data.getPassword())) {
-            throw new RuntimeException("Invalid password");
+       Optional<User> op=db.findByEmail(data.getEmail());
+        if(op.isEmpty()){
+           return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("User Not Found");
         }
+        String token = jwt.generateToken(data.getEmail());
 
-        return "Login successful";
+        return ResponseEntity.ok(token);
     }
 
     @GetMapping("/data")

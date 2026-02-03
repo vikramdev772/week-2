@@ -10,4 +10,8 @@ public class Index {
     M m() {
         return new M();
     }
+    @GetMapping("/notion")
+    String m1(){
+        return "https://steady-shawl-7c0.notion.site/CRUD-OPERATIONS-2eeff9567a0780938a56cd1b4320a553";
+    }
 }

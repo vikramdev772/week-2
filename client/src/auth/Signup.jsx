@@ -8,7 +8,7 @@ function Signup() {
 
   const navigate = useNavigate();
 
-  async function submitHandeler() {
+  async function submitHandler() {
     const obj = {
       name: n,
       email: e,
@@ -29,10 +29,7 @@ function Signup() {
       }
 
       alert("Signup successful");
-
-      // ✅ Navigate to login page
       navigate("/login");
-
     } catch (error) {
       console.error("Error:", error);
       alert("Signup failed");
@@ -64,11 +61,10 @@ function Signup() {
       />
       <br /><br />
 
-      <button onClick={submitHandeler}>Submit</button>
+      <button onClick={submitHandler}>Submit</button>
 
       <br /><br />
 
-      {/* ✅ Manual link to login */}
       <p>
         Already have an account? <Link to="/login">Login</Link>
       </p>

@@ -19,14 +19,36 @@ import com.example.myapp.repo.UserRepository;
 public class UpdateUser {
 
     @Autowired
-    UserRepository db;
+    private UserRepository db;
 
     @PutMapping("/update/{id}")
-    String update(@PathVariable Long id,@RequestBody SignupRequest sd){
-        Optional<User> op=db.findById(id);
+    public ResponseEntity<String> update(
+            @PathVariable Long id,
+            @RequestBody SignupRequest sd) {
 
+        Optional<User> op = db.findById(id);
 
-        return " dev";
+        if (op.isEmpty()) {
+            return ResponseEntity
+                    .status(404)
+                    .body("User not found");
+        }
 
+        User user = op.get();
+
+        // ✅ Update only non-null fields
+        if (sd.getName() != null) {
+            user.setName(sd.getName());
+        }
+        if (sd.getEmail() != null) {
+            user.setEmail(sd.getEmail());
+        }
+        if (sd.getPassword() != null) {
+            user.setPassword(sd.getPassword());
+        }
+
+        db.save(user);
+
+        return ResponseEntity.ok("User updated successfully");
     }
 }

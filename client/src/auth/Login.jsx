@@ -23,21 +23,20 @@ function Login() {
       });
 
       const data = await response.text();
-      console.log("Response:", data);
 
       if (!response.ok) {
         throw new Error(data);
       }
 
-      alert(data);
-      
-      localStorage.setItem("token ",data);
+      // ✅ Store JWT correctly
+      localStorage.setItem("token", data);
 
+      alert("Login successful");
       navigate("/admin");
 
     } catch (error) {
       console.error("Error:", error);
-      alert("Login failed");
+      alert(error.message);
     }
   }
 
@@ -63,11 +62,7 @@ function Login() {
 
       <br /><br />
 
-     
       <Link to="/signup">Go to Signup Page</Link>
-
-      <h4>email : {e}</h4>
-      <h4>password : {p}</h4>
     </div>
   );
 }

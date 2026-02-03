@@ -3,21 +3,10 @@ package com.example.myapp.controller;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.text.html.Option;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.myapp.dto.LoginRequest;
 import com.example.myapp.dto.SignupRequest;
@@ -29,65 +18,109 @@ import com.example.myapp.security.JwtService;
 @RestController
 @RequestMapping("/api")
 public class AuthController {
+
     @Autowired
-    UserRepository db;
+    private UserRepository db;
 
+    @Autowired
+    private JwtService jwt;
+
+    // ✅ SIGNUP
     @PostMapping("/signup")
-    public String m(@RequestBody SignupRequest sd) {
-        System.out.println("\n\t data : " + sd);
-        User data = new User();
-        data.setName(sd.getName());
-        data.setEmail(sd.getEmail());
-        data.setPassword(sd.getPassword());
+    public ResponseEntity<String> signup(@RequestBody SignupRequest sd) {
+        try {
+            Optional<User> existing = db.findByEmail(sd.getEmail());
+            if (existing.isPresent()) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body("Email already exists");
+            }
 
-        db.save(data);
+            User user = new User();
+            user.setName(sd.getName());
+            user.setEmail(sd.getEmail());
+            user.setPassword(sd.getPassword()); // hash later
 
-        return "signup sucess -> data" + sd.toString();
+            db.save(user);
+
+            return ResponseEntity.ok("Signup successful");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Signup failed");
+        }
     }
 
-    @Autowired JwtService jwt;
-
+    // ✅ LOGIN
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest data) {
 
-       Optional<User> op=db.findByEmail(data.getEmail());
-        if(op.isEmpty()){
-           return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("User Not Found");
-        }
-        String token = jwt.generateToken(data.getEmail());
+        Optional<User> op = db.findByEmail(data.getEmail());
 
+        if (op.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("User not found");
+        }
+
+        User user = op.get();
+
+        if (!user.getPassword().equals(data.getPassword())) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid password");
+        }
+
+        String token = jwt.generateToken(user.getEmail());
         return ResponseEntity.ok(token);
     }
 
+    // ✅ GET ALL USERS
     @GetMapping("/data")
-    List<User> getData() {
-
-        return db.findAll();
-
+    public ResponseEntity<List<User>> getData() {
+        return ResponseEntity.ok(db.findAll());
     }
-    @PutMapping("/update/{id}")
-    public String updateUser(@PathVariable Long id,@RequestBody SignupRequest sd){
-        Optional<User> op=db.findById(id);
-        if(op.isEmpty()){
-            return "user not found";
-        }
-        User updatedUser=op.get();
-        updatedUser.setName(sd.getName());
-        updatedUser.setEmail(sd.getEmail());
-        updatedUser.setPassword(sd.getPassword());
-        db.save(updatedUser);
-        return "user updated successfully";
+
+  @PutMapping("/update/{id}")
+public ResponseEntity<String> updateUser(
+        @PathVariable Long id,
+        @RequestBody SignupRequest sd) {
+
+    User user = db.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    if (sd.getName() != null) {
+        user.setName(sd.getName());
     }
+
+    if (sd.getEmail() != null) {
+        user.setEmail(sd.getEmail());
+    }
+
+    if (sd.getPassword() != null) {
+        user.setPassword(sd.getPassword());
+    }
+
+    db.save(user);
+    return ResponseEntity.ok("User updated successfully");
+}
+
+
+    // ✅ DELETE USER
     @DeleteMapping("/user/{id}")
-    public String deleteUser(@PathVariable Long id){
-        Optional<User> op=db.findById(id);
-        if(op.isEmpty()){
-            return "user not found";
-        }
-        db.deleteById(id);
-        return "user deleted successfully";
-    }
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
 
+        Optional<User> op = db.findById(id);
+
+        if (op.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("User not found");
+        }
+
+        db.deleteById(id);
+        return ResponseEntity.ok("User deleted successfully");
+    }
 }

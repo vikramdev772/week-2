@@ -22,9 +22,10 @@ public class JwtConfig {
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/", "/index", "/api/signup", "/api/login")
             )
+            .cors(cors -> {})
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/api/signup", "/api/login").permitAll()
+                .requestMatchers("/", "/index", "/api/signup", "/api/login").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
